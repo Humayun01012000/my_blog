@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}All Posts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <!-- Categories Sidebar -->
+        <h5 class="mb-3">Categories</h5>
+        <ul class="list-group mb-4">
+            {% for category in categories %}
+            <li class="list-group-item">
+                <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-lg-9">
+        <!-- Search Bar -->
+        <form method="get" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search posts...">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+
+        <!-- Posts -->
+        <h1 class="mb-4">All Posts</h1>
+        {% for post in page_obj %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2>
+                    <a href="{% url 'post_detail' post.slug %}" class="text-decoration-none">{{ post.title }}</a>
+                </h2>
+                <p class="text-muted">By {{ post.user.username }} | {{ post.created_at|date:"d M Y, H:i" }}</p>
+                <p>{{ post.content|truncatewords:20 }}</p>
+                {% if post.user == request.user %}
+                <a href="{% url 'edit_post' post.slug %}" class="btn btn-secondary btn-sm">Edit</a>
+                <a href="{% url 'delete_post' post.slug %}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p>No posts found.</p>
+        {% endfor %}
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        Previous
+                    </a>
+                </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                        Next
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
