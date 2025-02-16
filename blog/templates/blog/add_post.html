@@ -11,13 +11,19 @@
         {% endfor %}
     {% endif %}
 
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">  <!-- 🔥 Ensure file uploads work -->
         {% csrf_token %}
 
         <!-- Post Title -->
         <div class="mb-3">
             {{ form.title.label_tag }}
             {{ form.title }}
+        </div>
+
+        <!-- Post Image -->
+        <div class="mb-3">
+            {{ form.image.label_tag }}
+            {{ form.image }}
         </div>
 
         <!-- Post Content -->
@@ -37,7 +43,7 @@
             </select>
         </div>
 
-        <!-- Add New Category Option -->
+        <!-- Add New Category -->
         <div class="mb-3">
             <label for="new-category">Or Add New Category:</label>
             <input type="text" id="new-category" class="form-control" placeholder="Enter new category">
@@ -58,14 +64,14 @@ document.getElementById('add-category-btn').addEventListener('click', function()
     let newCategory = document.getElementById('new-category').value.trim();
     if (newCategory) {
         let select = document.getElementById('category-select');
-        
+
         // Check if the category already exists
         let exists = Array.from(select.options).some(option => option.text.toLowerCase() === newCategory.toLowerCase());
 
         if (!exists) {
             let option = document.createElement('option');
             option.text = newCategory;
-            option.value = 'new:' + newCategory;  // Mark as new category
+            option.value = 'new:' + newCategory;  // 🔥 Mark as new category
             select.add(option);
             select.value = option.value;
             document.getElementById('new-category').value = '';  // Clear input

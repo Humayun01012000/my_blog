@@ -1,13 +1,59 @@
 {% extends 'base.html' %}
 
-{% block title %}Edit Post{% endblock %}
+{% block title %}Edit Post - {{ post.title }}{% endblock %}
 
 {% block content %}
-<h1>Edit Post: {{ post.title }}</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Update Post</button>
-</form>
-<a href="{% url 'post_list' %}" class="btn btn-secondary mt-3">Back to Posts</a>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 border-0 rounded">
+        <h2 class="mb-4 text-primary"><i class="fas fa-edit"></i> Edit Post: <strong>{{ post.title }}</strong></h2>
+        
+        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Form Fields with Bootstrap Styling -->
+            <div class="mb-3">
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger"><small>{{ error }}</small></div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="fas fa-save"></i> Update Post
+                </button>
+
+                <a href="{% url 'post_list' %}" class="btn btn-secondary px-4">
+                    <i class="fas fa-arrow-left"></i> Back to Posts
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Client-side Validation (Bootstrap) -->
+<script>
+    (function() {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
 {% endblock %}
