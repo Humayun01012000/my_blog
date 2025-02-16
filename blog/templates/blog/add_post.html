@@ -1,13 +1,78 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Post{% endblock %}
-
 {% block content %}
-<h1>Add New Post</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Create Post</button>
-</form>
-<a href="{% url 'post_list' %}" class="btn btn-secondary mt-3">Back to Posts</a>
+<div class="container mt-4">
+    <h2>Add New Post</h2>
+
+    <!-- Display messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Post Title -->
+        <div class="mb-3">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+        </div>
+
+        <!-- Post Content -->
+        <div class="mb-3">
+            {{ form.content.label_tag }}
+            {{ form.content }}
+        </div>
+
+        <!-- Category Selection -->
+        <div class="mb-3">
+            <label for="category-select">Category:</label>
+            <select id="category-select" name="category" class="form-control">
+                <option value="">-- Select Category --</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Add New Category Option -->
+        <div class="mb-3">
+            <label for="new-category">Or Add New Category:</label>
+            <input type="text" id="new-category" class="form-control" placeholder="Enter new category">
+            <button type="button" class="btn btn-sm btn-secondary mt-2" id="add-category-btn">Add Category</button>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Create Post</button>
+    </form>
+
+    <br>
+    <a href="{% url 'post_list' %}" class="btn btn-secondary">Back to Posts</a>
+</div>
+
+<!-- JavaScript to Handle Category Addition -->
+<script>
+document.getElementById('add-category-btn').addEventListener('click', function() {
+    let newCategory = document.getElementById('new-category').value.trim();
+    if (newCategory) {
+        let select = document.getElementById('category-select');
+        
+        // Check if the category already exists
+        let exists = Array.from(select.options).some(option => option.text.toLowerCase() === newCategory.toLowerCase());
+
+        if (!exists) {
+            let option = document.createElement('option');
+            option.text = newCategory;
+            option.value = 'new:' + newCategory;  // Mark as new category
+            select.add(option);
+            select.value = option.value;
+            document.getElementById('new-category').value = '';  // Clear input
+        } else {
+            alert("Category already exists!");
+        }
+    }
+});
+</script>
 {% endblock %}

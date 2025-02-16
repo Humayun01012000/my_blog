@@ -3,6 +3,7 @@
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
+<a href="{% url 'edit_post' post.slug %}" class="btn btn-primary">Edit Post</a>
 <h1>{{ post.title }}</h1>
 <p class="text-muted">By {{ post.user.username }} | {{ post.created_at|date:"d M Y, H:i" }}</p>
 <div>{{ post.content|linebreaks }}</div>
