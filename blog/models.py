@@ -59,7 +59,7 @@ class Post(models.Model):
 # 💬 Comment Model (Supports Replies)
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='commented_posts')
     content = models.TextField()
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -70,11 +70,14 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.user.username} on {self.post.title}"
 
+    def user_avatar(self):
+        return self.user.profile.profile_image.url if hasattr(self.user, 'profile') and self.user.profile.profile_image else '/media/default_profile.jpg'
+
 
 # ❤️ Like Model
 class Like(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='liked_posts')
 
     class Meta:
         unique_together = ('post', 'user')  # Prevent duplicate likes
@@ -86,10 +89,25 @@ class Like(models.Model):
 # 🔖 Bookmark Model
 class Bookmark(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarks')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarked_posts')
 
     class Meta:
         unique_together = ('post', 'user')  # Prevent duplicate bookmarks
 
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
+
+
+# 👤 User Profile Model (Now with Avatars)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField(blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', default='default_profile.jpg', blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+    def avatar_url(self):
+        return self.profile_image.url if self.profile_image else '/media/default_profile.jpg'

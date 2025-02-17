@@ -4,59 +4,75 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>{{ post.title }}</h1>
-    <p class="text-muted">By {{ post.user.username }} | {{ post.created_at|date:"d M Y, H:i" }}</p>
+    <div class="card shadow-lg p-4">
+        <!-- Post Title & Author Info -->
+        <h1 class="fw-bold">{{ post.title }}</h1>
+        <p class="text-muted">
+            <i class="fa-solid fa-user"></i> <strong>{{ post.user.username }}</strong> &bull; 
+            <i class="fa-regular fa-calendar"></i> {{ post.created_at|date:"d M Y, H:i" }}
+        </p>
 
-    {% if post.image %}
-        <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="{{ post.title }}">
-    {% endif %}
-    
-    <div class="mb-3">{{ post.content|linebreaks }}</div>
+        <!-- Post Image -->
+        {% if post.image %}
+        <img src="{{ post.image.url }}" class="img-fluid rounded mb-4" alt="{{ post.title }}">
+        {% endif %}
 
-    <!-- ❤️ Like & 🔖 Bookmark Buttons -->
-    <div class="mt-3 d-flex gap-2">
-        <button id="like-btn" class="btn btn-outline-danger">
-            ❤️ Like (<span id="like-count">{{ post.total_likes }}</span>)
-        </button>
-        <button id="bookmark-btn" class="btn btn-outline-warning">
-            🔖 Bookmark
-        </button>
+        <!-- Post Content -->
+        <div class="fs-5 lh-lg">{{ post.content|linebreaks }}</div>
+
+        <!-- ❤️ Like & 🔖 Bookmark Buttons -->
+        <div class="mt-4 d-flex align-items-center gap-3">
+            <button id="like-btn" class="btn {% if user in post.likes.all %}btn-danger{% else %}btn-outline-danger{% endif %} btn-lg">
+                ❤️ Like (<span id="like-count">{{ post.total_likes }}</span>)
+            </button>
+            <button id="bookmark-btn" class="btn {% if user in post.bookmarks.all %}btn-warning{% else %}btn-outline-warning{% endif %} btn-lg">
+                🔖 {% if user in post.bookmarks.all %}Bookmarked{% else %}Bookmark{% endif %}
+            </button>
+        </div>
     </div>
 
     <!-- 💬 Comments Section -->
-    <h3 class="mt-4">Comments ({{ post.total_comments }})</h3>
+    <div class="card shadow-sm mt-5 p-4">
+        <h3 class="fw-bold text-primary"><i class="fa-solid fa-comments"></i> Comments ({{ post.total_comments }})</h3>
 
-    <!-- Add Comment Form -->
-    {% if user.is_authenticated %}
-    <form id="comment-form" method="post" class="mb-3">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Add Comment</button>
-    </form>
-    {% else %}
-        <p><a href="{% url 'login' %}">Login</a> to comment.</p>
-    {% endif %}
+        <!-- Add Comment Form -->
+        {% if user.is_authenticated %}
+        <form id="comment-form" method="post" class="mb-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary btn-lg"><i class="fa-solid fa-paper-plane"></i> Add Comment</button>
+        </form>
+        {% else %}
+            <p><a href="{% url 'login' %}" class="text-decoration-none text-primary"><strong>Login</strong></a> to comment.</p>
+        {% endif %}
 
-    <!-- Comments List -->
-    <ul id="comments-list" class="list-group">
-        {% for comment in post.comments.all %}
-        <li class="list-group-item">
-            <strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"d M Y, H:i" }}
-            <p>{{ comment.content }}</p>
-        </li>
-        {% empty %}
-        <li class="list-group-item">No comments yet.</li>
-        {% endfor %}
-    </ul>
+        <!-- Comments List -->
+        <ul id="comments-list" class="list-group">
+            {% for comment in post.comments.all %}
+            <li class="list-group-item d-flex align-items-start p-3">
+                <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="User Avatar">
+                <div>
+                    <strong class="text-dark">{{ comment.user.username }}</strong> 
+                    <span class="text-muted">- {{ comment.created_at|date:"d M Y, H:i" }}</span>
+                    <p class="mb-0">{{ comment.content }}</p>
+                </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-center text-muted">No comments yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <!-- Back to Posts -->
-    <a href="{% url 'post_list' %}" class="btn btn-secondary mt-4">Back to Posts</a>
+    <a href="{% url 'post_list' %}" class="btn btn-secondary mt-4">
+        <i class="fa-solid fa-arrow-left"></i> Back to Posts
+    </a>
 </div>
 
-<!-- AJAX for Likes, Bookmarks & Comments -->
+<!-- 🌟 AJAX for Likes, Bookmarks & Comments -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-
+    
     // Handle Like Button Click
     document.getElementById('like-btn').addEventListener('click', function() {
         fetch("{% url 'like_post' post.slug %}", { 
@@ -65,7 +81,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            document.getElementById('like-count').textContent = data.likes;
+            document.getElementById('like-count').textContent = data.total_likes;
+            let likeBtn = document.getElementById('like-btn');
+            likeBtn.classList.toggle('btn-danger', data.liked);
+            likeBtn.classList.toggle('btn-outline-danger', !data.liked);
+            likeBtn.classList.add("animate__animated", "animate__heartBeat");
+            setTimeout(() => likeBtn.classList.remove("animate__animated", "animate__heartBeat"), 1000);
         });
     });
 
@@ -77,7 +98,10 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            let bookmarkBtn = document.getElementById('bookmark-btn');
+            bookmarkBtn.innerHTML = data.bookmarked ? "🔖 Bookmarked" : "🔖 Bookmark";
+            bookmarkBtn.classList.toggle('btn-warning', data.bookmarked);
+            bookmarkBtn.classList.toggle('btn-outline-warning', !data.bookmarked);
         });
     });
 
@@ -86,13 +110,21 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         let formData = new FormData(this);
 
-        fetch("{% url 'add_comment' post.slug %}", { method: 'POST', body: formData })
+        fetch("{% url 'add_comment' post.slug %}", { 
+            method: 'POST', 
+            body: formData,
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        })
         .then(response => response.json())
         .then(data => {
             let newComment = `
-                <li class="list-group-item">
-                    <strong>${data.user}</strong> - ${data.created_at}
-                    <p>${data.content}</p>
+                <li class="list-group-item d-flex align-items-start p-3">
+                    <img src="https://via.placeholder.com/50" class="rounded-circle me-3" alt="User Avatar">
+                    <div>
+                        <strong class="text-dark">${data.user}</strong> 
+                        <span class="text-muted">- ${data.created_at}</span>
+                        <p class="mb-0">${data.content}</p>
+                    </div>
                 </li>`;
             document.getElementById('comments-list').innerHTML += newComment;
             this.reset();
@@ -101,4 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+
+<!-- Animate.css for smooth animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 {% endblock %}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Post, Category, Comment
+from .models import Post, Category, Comment,Profile
 
 # 📝 Form for Creating & Editing Posts
 class PostForm(forms.ModelForm):
@@ -51,4 +51,26 @@ class CommentForm(forms.ModelForm):
         }
         widgets = {
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 1, 'placeholder': 'Write your comment...'}),
+        }
+
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'profile_image', 'website', 'location']
+
+
+        labels = {
+            'bio': 'Bio',
+            'profile_image': 'Profile Image',
+            'website': 'Website',
+            'location': 'Location',
+        }
+
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'profile_image': forms.FileInput(attrs={'class': 'form-control-file'}),
+            'website': forms.URLInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
         }

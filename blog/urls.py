@@ -17,7 +17,15 @@ urlpatterns = [
 
     # ❤️ Likes System
     path('post/<slug:slug>/like/', views.like_post, name='like_post'),
-
+    # ���️ Bookmarks System
+    path('post/<slug:slug>/bookmark/', views.bookmark_post, name='bookmark_post'),
+    # ���️ Discussion System
     # 💬 Comments System
     path('post/<slug:slug>/comment/', views.add_comment, name='add_comment'),
+
+    # user profile 
+    path('profile/edit/', views.edit_profile, name='edit_profile'),  # Place edit_profile BEFORE user_profile
+    path('profile/<str:username>/', views.user_profile, name='user_profile'),
+    path('users/', views.user_list, name='user_list'),
+    
 ]

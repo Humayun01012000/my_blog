@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile.user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg p-4 text-center">
+        <h2>{{ profile.user.username }}</h2>
+        
+        {% if profile.profile_image %}
+            <img src="{{ profile.profile_image.url }}" alt="Profile Image" class="img-fluid rounded-circle" width="150">
+        {% else %}
+            <img src="/media/default.jpg" alt="Default Profile" class="img-fluid rounded-circle" width="150">
+        {% endif %}
+        
+        <p><strong>Bio:</strong> {{ profile.bio|default:"No bio yet." }}</p>
+        <p><strong>Location:</strong> {{ profile.location|default:"Not specified." }}</p>
+        <p><strong>Website:</strong> 
+            {% if profile.website %}
+                <a href="{{ profile.website }}" target="_blank">{{ profile.website }}</a>
+            {% else %}
+                Not provided.
+            {% endif %}
+        </p>
+
+        {% if profile.user == request.user %}
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

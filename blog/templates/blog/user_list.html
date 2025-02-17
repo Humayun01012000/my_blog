@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}All Users{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>All Users</h2>
+    <div class="list-group">
+        {% for user in users %}
+            <a href="{% url 'user_profile' user.username %}" class="list-group-item list-group-item-action">
+                <i class="fa-solid fa-user"></i> {{ user.username }}
+            </a>
+        {% empty %}
+            <p>No users found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
