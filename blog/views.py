@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from .models import Post, Category, Profile, Like
+from .models import Post, Category, Profile, Like, Bookmark
 from .forms import PostForm, CategoryForm, CommentForm, ProfileForm 
 from django.contrib.auth.models import User
 
@@ -55,16 +55,10 @@ def like_post(request, slug):
 
 
 # 🏷️ List posts by category
-def category_posts(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    posts = Post.objects.filter(category=category).order_by('-created_at')
-
-    paginator = Paginator(posts, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    return render(request, 'blog/category_posts.html', {'page_obj': page_obj, 'category': category})
-
+def category_posts(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    posts = Post.objects.filter(category=category)
+    return render(request, 'blog/category_posts.html', {'category': category, 'posts': posts})
 
 # ✍️ Add a new post (Only logged-in users)
 @login_required
@@ -180,16 +174,31 @@ def like_post(request, slug):
         liked = True
     return JsonResponse({'liked': liked, 'total_likes': post.total_likes()})
 
+
+
 @login_required
 def bookmark_post(request, slug):
     post = get_object_or_404(Post, slug=slug)
-    if request.user in post.bookmarks.all():
-        post.bookmarks.remove(request.user)
-        bookmarked = False
+    
+    print(f"User: {request.user}, Post: {post}")  # Debugging
+    
+    bookmark, created = Bookmark.objects.get_or_create(user=request.user, post=post)
+
+    if created:
+        print(f"✅ Bookmark created: {bookmark}")
+        message = "Post bookmarked successfully!"
     else:
-        post.bookmarks.add(request.user)
-        bookmarked = True
-    return JsonResponse({'bookmarked': bookmarked})
+        print(f"❌ Bookmark already exists, removing it...")
+        bookmark.delete()
+        message = "Bookmark removed."
+
+    return JsonResponse({'message': message})
+
+@login_required
+def bookmarks_list(request):
+    bookmarks = Bookmark.objects.filter(user=request.user)
+    posts = [bookmark.post for bookmark in bookmarks]  # Get the bookmarked posts
+    return render(request, 'blog/bookmarks_list.html', {'posts': posts})
 
 
 # User Profile 

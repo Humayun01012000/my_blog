@@ -10,21 +10,25 @@
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+    
     <style>
         body {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #f8f9fa;
+            background-color: #f5f5f5;
+            font-family: 'Poppins', sans-serif;
         }
         .navbar {
-            background-color: #343a40 !important;
+            background-color: #212529 !important;
+            padding: 15px;
         }
         .navbar-brand, .nav-link {
-            color: #ffffff !important;
+            color: #fff !important;
+            font-weight: 500;
+            transition: 0.3s;
         }
-        .nav-link:hover, .dropdown-item:hover {
+        .nav-link:hover {
             color: #ffc107 !important;
         }
         .container {
@@ -33,16 +37,34 @@
         }
         .dropdown-menu {
             background-color: #343a40;
-            border: none;
+            border-radius: 10px;
+            padding: 10px;
         }
         .dropdown-item {
             color: #ffffff !important;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .dropdown-item:hover {
+            background-color: #ffc107;
+            color: #212529 !important;
+        }
+        .btn-custom {
+            background: #ffc107;
+            color: #212529;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background: #e0a800;
         }
         footer {
-            background: #343a40;
+            background: #212529;
             color: white;
             text-align: center;
-            padding: 15px;
+            padding: 20px 0;
             margin-top: auto;
         }
         .social-icons a {
@@ -59,7 +81,7 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+    <nav class="navbar navbar-expand-lg navbar-dark shadow">
         <div class="container">
             <a class="navbar-brand" href="{% url 'post_list' %}">
                 <i class="fa-solid fa-pen-nib"></i> My Blog
@@ -89,37 +111,21 @@
                     </li>
 
                     {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'add_post' %}"><i class="fa-solid fa-plus"></i> New Post</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'user_list' %}"><i class="fa-solid fa-users"></i> Users</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'user_profile' user.username %}"><i class="fa-solid fa-user"></i> Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'bookmarks_list' %}">📌 Bookmarks</a></li>
+
+                        <!-- Logout Button (POST Request) -->
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'add_post' %}">
-                                <i class="fa-solid fa-plus"></i> New Post
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'user_list' %}">
-                                <i class="fa-solid fa-users"></i> All Users
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'user_profile' user.username %}">
-                                <i class="fa-solid fa-user"></i> Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-warning text-dark px-3" href="{% url 'logout' %}">
-                                <i class="fa-solid fa-sign-out-alt"></i> Logout
-                            </a>
+                            <form id="logout-form" action="{% url 'logout' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-custom text-dark"><i class="fa-solid fa-sign-out-alt"></i> Logout</button>
+                            </form>
                         </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fa-solid fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">
-                                <i class="fa-solid fa-user-plus"></i> Register
-                            </a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-sign-in-alt"></i> Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}"><i class="fa-solid fa-user-plus"></i> Register</a></li>
                     {% endif %}
                 </ul>
             </div>

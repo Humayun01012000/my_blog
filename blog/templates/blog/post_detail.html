@@ -14,7 +14,7 @@
 
         <!-- Post Image -->
         {% if post.image %}
-        <img src="{{ post.image.url }}" class="img-fluid rounded mb-4" alt="{{ post.title }}">
+        <img src="{{ post.image.url }}" class="img-fluid w-50 rounded mb-4 m-auto text-center" alt="{{ post.title }}">
         {% endif %}
 
         <!-- Post Content -->
@@ -91,19 +91,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle Bookmark Button Click
-    document.getElementById('bookmark-btn').addEventListener('click', function() {
-        fetch("{% url 'bookmark_post' post.slug %}", { 
-            method: 'POST', 
-            headers: { 'X-CSRFToken': '{{ csrf_token }}' } 
-        })
-        .then(response => response.json())
-        .then(data => {
-            let bookmarkBtn = document.getElementById('bookmark-btn');
-            bookmarkBtn.innerHTML = data.bookmarked ? "🔖 Bookmarked" : "🔖 Bookmark";
-            bookmarkBtn.classList.toggle('btn-warning', data.bookmarked);
-            bookmarkBtn.classList.toggle('btn-outline-warning', !data.bookmarked);
-        });
+   
+document.getElementById('bookmark-btn').addEventListener('click', function() {
+    fetch("{% url 'bookmark_post' post.slug %}", { 
+        method: 'POST', 
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' } 
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);  // Show bookmark status
     });
+});
+
+
 
     // Handle Comment Submission with AJAX
     document.getElementById('comment-form').addEventListener('submit', function(event) {

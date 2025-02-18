@@ -12,13 +12,17 @@ urlpatterns = [
     
     # 🏷️ Post Detail & Category
     path('post/<slug:slug>/', views.post_detail, name='post_detail'),
-    path('category/<int:pk>/', views.category_posts, name='category_posts'),
+    
+    path('category/<int:category_id>/', views.category_posts, name='category_posts'),
     path('category/add/', views.add_category, name='add_category'),
 
     # ❤️ Likes System
     path('post/<slug:slug>/like/', views.like_post, name='like_post'),
+    
     # ���️ Bookmarks System
     path('post/<slug:slug>/bookmark/', views.bookmark_post, name='bookmark_post'),
+    path('bookmarks/', views.bookmarks_list, name='bookmarks_list'),
+
     # ���️ Discussion System
     # 💬 Comments System
     path('post/<slug:slug>/comment/', views.add_comment, name='add_comment'),

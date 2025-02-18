@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Categories</h2>
+    <ul class="list-group">
+        {% for category in categories %}
+        <li class="list-group-item">
+            <a href="{{ category.get_absolute_url }}" class="text-decoration-none">{{ category.name }}</a>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-muted">No categories available.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

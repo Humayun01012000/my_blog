@@ -12,7 +12,7 @@
                 <ul class="list-group">
                     {% for category in categories %}
                     <li class="list-group-item">
-                        <a href="{{ category.get_absolute_url }}" class="text-decoration-none">{{ category.name }}</a>
+                        <a href="{% url 'category_posts' category.id %}" class="text-decoration-none">{{ category.name }}</a>
                     </li>
                     {% empty %}
                     <li class="list-group-item text-muted">No categories available.</li>

@@ -5,17 +5,15 @@ from django.contrib.auth.models import User
 
 
 # 🏷️ Category Model
-class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True)
 
-    class Meta:
-        ordering = ['name']  # Alphabetical order
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('category_posts', kwargs={'pk': self.pk})
+        return reverse('category_posts', kwargs={'category_id': self.pk})  # Use 'category_id'
 
 
 # 📝 Post Model
@@ -88,15 +86,14 @@ class Like(models.Model):
 
 # 🔖 Bookmark Model
 class Bookmark(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='bookmarks')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarked_posts')
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='bookmarks')
 
     class Meta:
-        unique_together = ('post', 'user')  # Prevent duplicate bookmarks
+        unique_together = ('user', 'post')  # Prevent duplicate bookmarks
 
     def __str__(self):
         return f"{self.user.username} bookmarked {self.post.title}"
-
 
 # 👤 User Profile Model (Now with Avatars)
 class Profile(models.Model):
